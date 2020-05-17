@@ -542,6 +542,8 @@ struct CAFFE2_API TensorType : public Type {
       at::Device device,
       at::IntArrayRef sizes);
 
+  static TensorTypePtr createInferred();
+
   static TypePtr fromNumberType(TypePtr typ);
   static TypePtr fromBoolType();
 
@@ -661,6 +663,15 @@ struct CAFFE2_API TensorType : public Type {
     return scalar_type_ && device_ && sizes_.isComplete() && strides_.isComplete();
   }
 
+  bool isInferredType() const {
+    return is_inferred_type_;
+  }
+
+  static TensorTypePtr getInferred() {
+    static auto valueInferred = createInferred();
+    return valueInferred;
+  }
+
   // this property is used by GuardElimination
   // please see `checkInputs` for more details
   bool isSummarized() const {
@@ -732,6 +743,8 @@ struct CAFFE2_API TensorType : public Type {
   // defined and undefined. However, no tensor type starts out with
   // `undefined_` set to `c10::nullopt`
   c10::optional<bool> undefined_;
+  // Represents whether or not this type was inferred.
+  bool is_inferred_type_= false;
 };
 
 struct ListType;
